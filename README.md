@@ -35,7 +35,7 @@ mvn clean package
 java -jar target/StarProductAdvisor.jar
 ```
 ## Авторы
-- Бурка Максим
-- Акинина Анжелика
-- Бодунов Артемий
-- Роман Митин
+- Бурка Максим ([byorck](https://github.com/byorck))
+- Акинина Анжелика([waffleemilky](https://github.com/waffleemilky))
+- Бодунов Артемий([JewRay](https://github.com/JewRay))
+- Роман Митин ([Mitrom79](https://github.com/Mitrom79))
