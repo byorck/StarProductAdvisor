@@ -16,20 +16,24 @@
 - Swagger и springdoc-openapi
 
 ### Настройка конфигураций (application.properties)
+```
 spring.application.name=StarProductAdvisor
 server.port=8080
-
+```
 Подключение H2
+```
 application.recommendations-db.url=jdbc:h2:file:./transaction
-
+```
 ## Запуск приложения
 
 ### Сборка
+```
 mvn clean package
-
+```
 ### Запуск
+```
 java -jar target/StarProductAdvisor.jar
-
+```
 ## Авторы
 - Бурка Максим
 - Акинина Анжелика
