@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
+
 /**
  * Правило для рекомендации "Простой кредит":
  * Проверяет, что у пользователя нет кредитного продукта,

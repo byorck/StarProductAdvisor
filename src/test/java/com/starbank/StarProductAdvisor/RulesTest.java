@@ -13,7 +13,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -28,16 +29,13 @@ public class RulesTest {
 
     @Test
     void apply_WhenAllConditionsMetWithDebitDeposits_ShouldReturnRecommendation() {
-
         UUID userId = UUID.randomUUID();
         when(repository.userHasProductType(userId, "DEBIT")).thenReturn(true);
         when(repository.sumDepositsByUserAndProductType(userId, "DEBIT")).thenReturn(60000.0);
         when(repository.sumDepositsByUserAndProductType(userId, "SAVING")).thenReturn(0.0);
         when(repository.sumWithdrawalsByUserAndProductType(userId, "DEBIT")).thenReturn(40000.0);
 
-
         Optional<RecommendationDTO> result = topSavingRule.apply(userId);
-
 
         assertTrue(result.isPresent());
         RecommendationDTO recommendation = result.get();
@@ -48,19 +46,15 @@ public class RulesTest {
 
     @Test
     void apply_WhenAllConditionsMetWithSavingDeposits_ShouldReturnRecommendation() {
-        // Arrange
         UUID userId = UUID.randomUUID();
         when(repository.userHasProductType(userId, "DEBIT")).thenReturn(true);
         when(repository.sumDepositsByUserAndProductType(userId, "DEBIT")).thenReturn(41000.0);
         when(repository.sumDepositsByUserAndProductType(userId, "SAVING")).thenReturn(60000.0);
         when(repository.sumWithdrawalsByUserAndProductType(userId, "DEBIT")).thenReturn(40000.0);
 
-
         Optional<RecommendationDTO> result = topSavingRule.apply(userId);
 
-
         assertTrue(result.isPresent());
-
 
         verify(repository).userHasProductType(userId, "DEBIT");
         verify(repository).sumDepositsByUserAndProductType(userId, "DEBIT");
@@ -70,64 +64,52 @@ public class RulesTest {
 
     @Test
     void apply_WhenNoDebitAccount_ShouldReturnEmpty() {
-
         UUID userId = UUID.randomUUID();
         when(repository.userHasProductType(userId, "DEBIT")).thenReturn(false);
         when(repository.sumDepositsByUserAndProductType(userId, "DEBIT")).thenReturn(60000.0);
         when(repository.sumDepositsByUserAndProductType(userId, "SAVING")).thenReturn(60000.0);
         when(repository.sumWithdrawalsByUserAndProductType(userId, "DEBIT")).thenReturn(40000.0);
 
-
         Optional<RecommendationDTO> result = topSavingRule.apply(userId);
-
 
         assertFalse(result.isPresent());
     }
 
     @Test
     void apply_WhenDepositsLessThan50000_ShouldReturnEmpty() {
-
         UUID userId = UUID.randomUUID();
         when(repository.userHasProductType(userId, "DEBIT")).thenReturn(true);
         when(repository.sumDepositsByUserAndProductType(userId, "DEBIT")).thenReturn(49999.0);
         when(repository.sumDepositsByUserAndProductType(userId, "SAVING")).thenReturn(49999.0);
         when(repository.sumWithdrawalsByUserAndProductType(userId, "DEBIT")).thenReturn(40000.0);
 
-
         Optional<RecommendationDTO> result = topSavingRule.apply(userId);
-
 
         assertFalse(result.isPresent());
     }
 
     @Test
     void apply_WhenDepositsExactly50000_ShouldReturnRecommendation() {
-
         UUID userId = UUID.randomUUID();
         when(repository.userHasProductType(userId, "DEBIT")).thenReturn(true);
         when(repository.sumDepositsByUserAndProductType(userId, "DEBIT")).thenReturn(50000.0);
         when(repository.sumDepositsByUserAndProductType(userId, "SAVING")).thenReturn(0.0);
         when(repository.sumWithdrawalsByUserAndProductType(userId, "DEBIT")).thenReturn(40000.0);
 
-
         Optional<RecommendationDTO> result = topSavingRule.apply(userId);
-
 
         assertTrue(result.isPresent()); // >= 50000
     }
 
     @Test
     void apply_WhenDepositsNotGreaterThanWithdrawals_ShouldReturnEmpty() {
-
         UUID userId = UUID.randomUUID();
         when(repository.userHasProductType(userId, "DEBIT")).thenReturn(true);
         when(repository.sumDepositsByUserAndProductType(userId, "DEBIT")).thenReturn(60000.0);
         when(repository.sumDepositsByUserAndProductType(userId, "SAVING")).thenReturn(0.0);
         when(repository.sumWithdrawalsByUserAndProductType(userId, "DEBIT")).thenReturn(60000.0);
 
-
         Optional<RecommendationDTO> result = topSavingRule.apply(userId);
-
 
         assertFalse(result.isPresent()); // deposits must be > withdrawals
     }

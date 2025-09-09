@@ -4,7 +4,10 @@ import com.starbank.StarProductAdvisor.dto.RecommendationDTO;
 import com.starbank.StarProductAdvisor.dto.RecommendationResponse;
 import com.starbank.StarProductAdvisor.service.RecommendationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
