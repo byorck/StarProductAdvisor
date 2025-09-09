@@ -22,9 +22,7 @@ public class RecommendationsDataSourceConfiguration {
     }
 
     @Bean(name = "recommendationsJdbcTemplate")
-    public JdbcTemplate recommendationsJdbcTemplate(
-            @Qualifier("recommendationsDataSource") DataSource dataSource
-    ) {
+    public JdbcTemplate recommendationsJdbcTemplate(@Qualifier("recommendationsDataSource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 }

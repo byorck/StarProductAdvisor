@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
+
 /**
  * Правило для рекомендации 'Invest 500':
  * Проверяет, есть ли у пользователя дебетовый счет, нет инвестиционного счета,
