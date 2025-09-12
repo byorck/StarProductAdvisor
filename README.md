@@ -7,22 +7,45 @@
 - JDK 17
 - Maven
 - Spring Boot 3.5.5
-- Встраиваемая база данных H2 (файл transaction.mv.db)
+- База данных системы H2 (с режимом ReadOnly) для работы со статическими правилами рекомендаций (файл transaction.mv.db)
+- База данных системы PostgreSQL (с режимом Read/Write) для работы с динамическими правилами рекомендаций
 
 ## Шаги развертывания
 ### Установка зависимостей
 - Spring Web
 - JDBC-драйвер для работы с H2
 - Swagger и springdoc-openapi
-
+- API Jakarta Persistence (JPA)
+- библиотека Liquibase для управления миграциями баз данных
+- JDBC-драйвер для PostgreSQL
+- библиотеки для тестирования в Spring Boot (JUnit, Mockito, Spring Test и другие)
+  
 ### Настройка конфигураций (application.properties)
 ```
 spring.application.name=StarProductAdvisor
 server.port=8080
 ```
-Подключение H2
+Подключение БД системы H2 для хранения статических правил рекомендаций
 ```
 application.recommendations-db.url=jdbc:h2:file:./transaction
+```
+Подключение БД системы PostgreSQL для хранения динамических правил рекомендаций
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/${MY_DB}
+spring.datasource.username=${MY_NAME}
+spring.datasource.password=${MY_PASS}
+spring.datasource.driver-class-name=org.postgresql.Driver
+```
+Подключение liquibase
+```
+spring.liquibase.change-log=classpath:/liquibase/changelog-master.yaml
+spring.liquibase.enabled=true
+```
+Настройка Hibernate
+```
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.open-in-view=false
+spring.jpa.show-sql=true
 ```
 ## Запуск приложения
 
