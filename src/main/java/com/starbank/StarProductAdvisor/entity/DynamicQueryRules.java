@@ -17,14 +17,16 @@ public class DynamicQueryRules {
     private Long id;
 
     @Schema(description = "Тип запроса", example = "USER_OF, ACTIVE_USER_OF, TRANSACTION_SUM_COMPARE, TRANSACTION_SUM_COMPARE_DEPOSIT_WITHDRAW")
+    @Enumerated(EnumType.STRING)
     @Column(name = "query", columnDefinition = "TEXT")
-    private String query;
+    private Query query;
 
     @Schema(description = "Аргументы запроса (тип продукта, тип транзакции, тип сравнения и число, с которым выполняется сравнение)")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "query_arguments", joinColumns = @JoinColumn(name = "query_id", referencedColumnName = "id"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "argument")
-    private List<String> arguments;
+    private List<Arguments> arguments;
 
     @Schema(description = "Модификатор отрицания", example = "true/false")
     @Column(name = "negate")
@@ -35,8 +37,7 @@ public class DynamicQueryRules {
     @JoinColumn(name = "recommendations_id")
     private DynamicRecommendationRule dynamicRecommendationRule;
 
-    public DynamicQueryRules(Long id, String query, List<String> arguments, boolean negate, DynamicRecommendationRule dynamicRecommendationRule) {
-        this.id = id;
+    public DynamicQueryRules(Query query, List<Arguments> arguments, boolean negate, DynamicRecommendationRule dynamicRecommendationRule) {
         this.query = query;
         this.arguments = arguments;
         this.negate = negate;
@@ -54,19 +55,19 @@ public class DynamicQueryRules {
         this.id = id;
     }
 
-    public String getQuery() {
+    public Query getQuery() {
         return query;
     }
 
-    public void setQuery(String query) {
+    public void setQuery(Query query) {
         this.query = query;
     }
 
-    public List<String> getArguments() {
+    public List<Arguments> getArguments() {
         return arguments;
     }
 
-    public void setArguments(List<String> arguments) {
+    public void setArguments(List<Arguments> arguments) {
         this.arguments = arguments;
     }
 
