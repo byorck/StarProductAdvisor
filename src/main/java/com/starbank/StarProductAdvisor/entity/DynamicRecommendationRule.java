@@ -40,6 +40,10 @@ public class DynamicRecommendationRule {
         this.productName = productName;
         this.productText = productText;
         this.queries = queries;
+
+        for (DynamicQueryRules q : queries) {
+            q.setDynamicRecommendationRule(this);
+        }
     }
 
     public DynamicRecommendationRule() {
