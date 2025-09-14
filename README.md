@@ -15,7 +15,7 @@
 - Spring Web
 - JDBC-драйвер для работы с H2
 - Swagger и springdoc-openapi
-- API Jakarta Persistence (JPA)
+- Spring Data JPA (API Jakarta Persistence, Hibernate, Spring Data)
 - библиотека Liquibase для управления миграциями баз данных
 - JDBC-драйвер для PostgreSQL
 - библиотеки для тестирования в Spring Boot (JUnit, Mockito, Spring Test и другие)

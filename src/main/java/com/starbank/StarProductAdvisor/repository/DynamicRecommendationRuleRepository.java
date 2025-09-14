@@ -1,4 +1,9 @@
 package com.starbank.StarProductAdvisor.repository;
 
-public class DynamicRecommendationRuleRepository {
+import com.starbank.StarProductAdvisor.entity.DynamicRecommendationRule;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface DynamicRecommendationRuleRepository extends CrudRepository<DynamicRecommendationRule, Long> {
 }

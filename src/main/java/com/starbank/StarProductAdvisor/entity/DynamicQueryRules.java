@@ -13,6 +13,7 @@ import java.util.Objects;
 public class DynamicQueryRules {
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -24,9 +25,8 @@ public class DynamicQueryRules {
     @Schema(description = "Аргументы запроса (тип продукта, тип транзакции, тип сравнения и число, с которым выполняется сравнение)")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "query_arguments", joinColumns = @JoinColumn(name = "query_id", referencedColumnName = "id"))
-    @Enumerated(EnumType.STRING)
     @Column(name = "argument")
-    private List<Arguments> arguments;
+    private List<String> arguments;
 
     @Schema(description = "Модификатор отрицания", example = "true/false")
     @Column(name = "negate")
@@ -37,7 +37,7 @@ public class DynamicQueryRules {
     @JoinColumn(name = "recommendations_id")
     private DynamicRecommendationRule dynamicRecommendationRule;
 
-    public DynamicQueryRules(Query query, List<Arguments> arguments, boolean negate, DynamicRecommendationRule dynamicRecommendationRule) {
+    public DynamicQueryRules(Query query, List<String> arguments, boolean negate, DynamicRecommendationRule dynamicRecommendationRule) {
         this.query = query;
         this.arguments = arguments;
         this.negate = negate;
@@ -63,11 +63,11 @@ public class DynamicQueryRules {
         this.query = query;
     }
 
-    public List<Arguments> getArguments() {
+    public List<String> getArguments() {
         return arguments;
     }
 
-    public void setArguments(List<Arguments> arguments) {
+    public void setArguments(List<String> arguments) {
         this.arguments = arguments;
     }
 
@@ -91,11 +91,11 @@ public class DynamicQueryRules {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         DynamicQueryRules that = (DynamicQueryRules) o;
-        return negate == that.negate && Objects.equals(id, that.id) && Objects.equals(query, that.query) && Objects.equals(arguments, that.arguments) && Objects.equals(dynamicRecommendationRule, that.dynamicRecommendationRule);
+        return negate == that.negate && Objects.equals(id, that.id) && query == that.query && Objects.equals(arguments, that.arguments);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, query, arguments, negate, dynamicRecommendationRule);
+        return Objects.hash(id, query, arguments, negate);
     }
 }
