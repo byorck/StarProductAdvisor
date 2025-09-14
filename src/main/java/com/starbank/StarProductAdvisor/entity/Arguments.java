@@ -15,9 +15,8 @@ public enum Arguments {
 
     private final String symbol;
 
-    // Конструктор для констант с параметром
     Arguments() {
-        this.symbol = this.name(); // по умолчанию имя enum
+        this.symbol = this.name();
     }
 
     Arguments(String symbol) {

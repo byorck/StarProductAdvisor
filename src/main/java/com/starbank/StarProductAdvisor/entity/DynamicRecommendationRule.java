@@ -19,19 +19,19 @@ public class DynamicRecommendationRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Schema(description = "ID продукта", example = "147f6a0f-3b91-413b-ab99-87f081d60d5a")
-    @Column(name = "product_id")
-    private UUID productId;
-
     @Schema(description = "Название продукта")
     @Column(name = "product_name")
     private String productName;
+
+    @Schema(description = "ID продукта", example = "147f6a0f-3b91-413b-ab99-87f081d60d5a")
+    @Column(name = "product_id")
+    private UUID productId;
 
     @Schema(description = "Описание продукта")
     @Column(name = "product_text")
     private String productText;
 
-    @OneToMany(mappedBy = "recommendation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "dynamicRecommendationRule", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DynamicQueryRules> queries = new HashSet<>();
 
     public DynamicRecommendationRule(Long id, UUID productId, String productName, String productText, Set<DynamicQueryRules> queries) {
@@ -94,11 +94,11 @@ public class DynamicRecommendationRule {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         DynamicRecommendationRule that = (DynamicRecommendationRule) o;
-        return Objects.equals(id, that.id) && Objects.equals(productId, that.productId) && Objects.equals(productName, that.productName) && Objects.equals(productText, that.productText) && Objects.equals(queries, that.queries);
+        return Objects.equals(id, that.id) && Objects.equals(productName, that.productName) && Objects.equals(productId, that.productId) && Objects.equals(productText, that.productText) && Objects.equals(queries, that.queries);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, productId, productName, productText, queries);
+        return Objects.hash(id, productName, productId, productText, queries);
     }
 }

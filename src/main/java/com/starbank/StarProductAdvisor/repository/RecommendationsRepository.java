@@ -96,4 +96,24 @@ public class RecommendationsRepository {
             throw new DatabaseException("Ошибка в sumWithdrawalsByUserAndProductType", ex);
         }
     }
+
+    /**
+     * Считает количество транзакций у пользователя по типу.
+     *
+     * @param userId      UUID пользователя
+     * @param productType Тип продукта (например, DEBIT, CREDIT)
+     * @return количество транзакций
+     * @throws DatabaseException при технической ошибке базы
+     */
+    public int countTransactionsByUserAndProductType(UUID userId, String productType) {
+        try {
+            String sql = "SELECT COUNT(1) FROM transactions t " +
+                    "JOIN products p ON t.product_id = p.id " +
+                    "WHERE t.user_id = ? AND p.type = ?";
+            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId, productType);
+            return count != null ? count : 0;
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Ошибка при подсчёте транзакций пользователя", ex);
+        }
+    }
 }
