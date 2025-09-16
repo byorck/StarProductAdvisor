@@ -2,10 +2,10 @@ package com.starbank.StarProductAdvisor.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
-public class DynamicRecommendationRuleDTO {
+public class DynamicRecommendationRuleWithoutIdDTO {
     @JsonProperty("product_name")
     private String productName;
 
@@ -16,7 +16,7 @@ public class DynamicRecommendationRuleDTO {
     private String productText;
 
     @JsonProperty("rule")
-    private Set<DynamicQueryRulesDTO> rule;
+    private List<DynamicQueryRulesDTO> rule;
 
     public String getProductName() {
         return productName;
@@ -42,11 +42,11 @@ public class DynamicRecommendationRuleDTO {
         this.productText = productText;
     }
 
-    public Set<DynamicQueryRulesDTO> getRule() {
+    public List<DynamicQueryRulesDTO> getRule() {
         return rule;
     }
 
-    public void setRule(Set<DynamicQueryRulesDTO> rule) {
+    public void setRule(List<DynamicQueryRulesDTO> rule) {
         this.rule = rule;
     }
 }
