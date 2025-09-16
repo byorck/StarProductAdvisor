@@ -2,11 +2,14 @@ package com.starbank.StarProductAdvisor.repository;
 
 import com.starbank.StarProductAdvisor.exception.DatabaseException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
+
 
 /**
  * Репозиторий для работы с базой данных рекомендаций через JdbcTemplate.
@@ -19,7 +22,6 @@ public class RecommendationsRepository {
     public RecommendationsRepository(@Qualifier("recommendationsJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
     /**
      * Проверяет, существует ли пользователь с таким ID.
      *
@@ -27,6 +29,7 @@ public class RecommendationsRepository {
      * @return true если пользователь есть, иначе false
      * @throws DatabaseException при технической ошибке базы
      */
+    @Cacheable(value = "userExists", key = "#userId")
     public boolean userExists(UUID userId) {
         try {
             String sql = "SELECT COUNT(1) FROM users WHERE id = ?";
@@ -45,6 +48,7 @@ public class RecommendationsRepository {
      * @return true если транзакции есть, иначе false
      * @throws DatabaseException при технической ошибке базы
      */
+    @Cacheable(value = "userProductType", key = "#userId + '_' + #productType")
     public boolean userHasProductType(UUID userId, String productType) {
         try {
             String sql = "SELECT COUNT(1) FROM transactions t " +
@@ -65,6 +69,7 @@ public class RecommendationsRepository {
      * @return сумма транзакций пополнений
      * @throws DatabaseException при технической ошибке базы
      */
+    @Cacheable(value = "userDeposits", key = "#userId + '_' + #productType")
     public double sumDepositsByUserAndProductType(UUID userId, String productType) {
         try {
             String sql = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t " +
@@ -85,6 +90,7 @@ public class RecommendationsRepository {
      * @return сумма транзакций снятий
      * @throws DatabaseException при технической ошибке базы
      */
+    @Cacheable(value = "userWithdrawals", key = "#userId + '_' + #productType")
     public double sumWithdrawalsByUserAndProductType(UUID userId, String productType) {
         try {
             String sql = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t " +
@@ -105,6 +111,7 @@ public class RecommendationsRepository {
      * @return количество транзакций
      * @throws DatabaseException при технической ошибке базы
      */
+    @Cacheable(value = "userTransactionCount", key = "#userId + '_' + #productType")
     public int countTransactionsByUserAndProductType(UUID userId, String productType) {
         try {
             String sql = "SELECT COUNT(1) FROM transactions t " +
@@ -115,5 +122,19 @@ public class RecommendationsRepository {
         } catch (DataAccessException ex) {
             throw new DatabaseException("Ошибка при подсчёте транзакций пользователя", ex);
         }
+    }
+
+    // Метод для очистки кэша (если нужно при обновлении данных)
+    @CacheEvict(value = {"userExists", "userProductType", "userDeposits", "userWithdrawals", "userTransactionCount"},
+            allEntries = true)
+    public void clearAllUserCaches() {
+        // Метод только для очистки кэша, тело может быть пустым
+    }
+
+    // Очистка конкретного кэша пользователя
+    @CacheEvict(value = {"userExists", "userProductType", "UserDeposits", "userWithdrawals", "userTransactionCount"},
+            key = "#userId")
+    public void clearUserCaches(UUID userId) {
+        // Метод только для очистки кэша
     }
 }
