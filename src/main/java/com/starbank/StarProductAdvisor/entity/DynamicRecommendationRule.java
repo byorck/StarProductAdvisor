@@ -31,7 +31,7 @@ public class DynamicRecommendationRule {
     @Column(name = "product_text")
     private String productText;
 
-    @OneToMany(mappedBy = "dynamicRecommendationRule", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "dynamicRecommendationRule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<DynamicQueryRules> queries = new HashSet<>();
 
     public DynamicRecommendationRule(Long id, UUID productId, String productName, String productText, Set<DynamicQueryRules> queries) {

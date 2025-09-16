@@ -1,31 +1,33 @@
 package com.starbank.StarProductAdvisor.service;
 
-import com.starbank.StarProductAdvisor.dto.DynamicRecommendationRuleDTO;
-import com.starbank.StarProductAdvisor.entity.Arguments;
+import com.starbank.StarProductAdvisor.dto.DynamicQueryRulesDTO;
+import com.starbank.StarProductAdvisor.dto.DynamicRecommendationRuleWithIdDTO;
+import com.starbank.StarProductAdvisor.dto.DynamicRecommendationRuleWithoutIdDTO;
 import com.starbank.StarProductAdvisor.entity.DynamicQueryRules;
 import com.starbank.StarProductAdvisor.entity.DynamicRecommendationRule;
-import com.starbank.StarProductAdvisor.entity.Query;
 import com.starbank.StarProductAdvisor.repository.DynamicRecommendationRuleRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 public class DynamicRecommendationRuleService {
 
     private final DynamicRecommendationRuleRepository dynamicRecommendationRuleRepository;
-    private final TransactionService transactionService;
 
-    public DynamicRecommendationRuleService(DynamicRecommendationRuleRepository dynamicRecommendationRuleRepository,
-                                            TransactionService transactionService) {
+    public DynamicRecommendationRuleService(DynamicRecommendationRuleRepository dynamicRecommendationRuleRepository) {
         this.dynamicRecommendationRuleRepository = dynamicRecommendationRuleRepository;
-        this.transactionService = transactionService;
     }
 
-    public DynamicRecommendationRule createDynamicRecommendationRule(DynamicRecommendationRuleDTO dto) {
+    // Создание правила
+    public DynamicRecommendationRule createDynamicRecommendationRule(DynamicRecommendationRuleWithoutIdDTO dto) {
         DynamicRecommendationRule entity = mapDtoToEntity(dto);
         if (entity.getQueries() != null) {
             entity.getQueries().forEach(q -> q.setDynamicRecommendationRule(entity));
@@ -33,7 +35,8 @@ public class DynamicRecommendationRuleService {
         return dynamicRecommendationRuleRepository.save(entity);
     }
 
-    private DynamicRecommendationRule mapDtoToEntity(DynamicRecommendationRuleDTO dto) {
+    // Преобразование DTO -> Entity
+    private DynamicRecommendationRule mapDtoToEntity(DynamicRecommendationRuleWithoutIdDTO dto) {
         DynamicRecommendationRule entity = new DynamicRecommendationRule();
         entity.setProductId(dto.getProductId());
         entity.setProductName(dto.getProductName());
@@ -52,73 +55,50 @@ public class DynamicRecommendationRuleService {
         return entity;
     }
 
-    public boolean checkRuleForUser(DynamicRecommendationRule rule, UUID userId) {
-        for (DynamicQueryRules queryRule : rule.getQueries()) {
-            boolean result = checkQueryRule(userId, queryRule);
-            if (!result) {
-                return false;
-            }
+    // Получение всех правил в формате DTO
+    public List<DynamicRecommendationRuleWithIdDTO> getAllDynamicRecommendationRuleDto() {
+        return dynamicRecommendationRuleRepository.findAll()
+                .stream()
+                .map(this::mapWithIdEntityToDto)
+                .collect(Collectors.toList());
+    }
+
+    // Получение одного правила по ID в формате DTO
+    public Optional<DynamicRecommendationRuleWithIdDTO> getDynamicRecommendationRuleDto(Long recommendationId) {
+        return dynamicRecommendationRuleRepository.findById(recommendationId)
+                .map(this::mapWithIdEntityToDto);
+    }
+
+    // Удаление правила с ответом HTTP
+    public ResponseEntity<Void> deleteDynamicRecommendationRule(Long recommendationId) {
+        Optional<DynamicRecommendationRule> entityOpt = dynamicRecommendationRuleRepository.findById(recommendationId);
+        if (entityOpt.isPresent()) {
+            dynamicRecommendationRuleRepository.delete(entityOpt.get());
+            return ResponseEntity.noContent().build(); // HTTP 204
         }
-        return true;
+        return ResponseEntity.notFound().build(); // HTTP 404
     }
 
-    public boolean checkQueryRule(UUID userId, DynamicQueryRules queryRule) {
-        Query query = queryRule.getQuery();
-        List<String> args = queryRule.getArguments();
+    // Маппер c Id Entity -> DTO
+    public DynamicRecommendationRuleWithIdDTO mapWithIdEntityToDto(DynamicRecommendationRule entity) {
+        DynamicRecommendationRuleWithIdDTO dto = new DynamicRecommendationRuleWithIdDTO();
+        dto.setId(entity.getId());  // Заполняем id
+        dto.setProductId(entity.getProductId());
+        dto.setProductName(entity.getProductName());
+        dto.setProductText(entity.getProductText());
 
-        boolean result;
-        switch (query) {
-            case USER_OF:
-                result = checkUserOf(userId, queryRule, args);
-                break;
-            case ACTIVE_USER_OF:
-                result = checkActiveUserOf(userId, queryRule, args);
-                break;
-            case TRANSACTION_SUM_COMPARE:
-                result = checkTransactionSumCompare(userId, queryRule, args);
-                break;
-            case TRANSACTION_SUM_COMPARE_DEPOSIT_WITHDRAW:
-                result = checkTransactionSumCompareDepositWithdraw(userId, queryRule, args);
-                break;
-            default:
-                throw new IllegalArgumentException("Неизвестный тип запроса: " + query);
-        }
-        return result;
-    }
+        List<DynamicQueryRulesDTO> rulesDto = entity.getQueries().stream()
+                .map(query -> {
+                    DynamicQueryRulesDTO dtoQuery = new DynamicQueryRulesDTO();
+                    dtoQuery.setQuery(query.getQuery());
+                    dtoQuery.setArguments(query.getArguments());
+                    dtoQuery.setNegate(query.isNegate());
+                    return dtoQuery;
+                })
+                .sorted(Comparator.comparing(DynamicQueryRulesDTO::getQuery))
+                .collect(Collectors.toList());
 
-    private boolean checkUserOf(UUID userId, DynamicQueryRules queryRule, List<String> args) {
-        if (args.size() != 1) throw new IllegalArgumentException("USER_OF принимает ровно один аргумент");
-        Arguments productType = Arguments.valueOf(args.get(0));
-        boolean isUser = transactionService.isUserOfProduct(userId, productType);
-        return queryRule.isNegate() ? !isUser : isUser;
-    }
-
-    private boolean checkActiveUserOf(UUID userId, DynamicQueryRules queryRule, List<String> args) {
-        if (args.size() != 1) throw new IllegalArgumentException("ACTIVE_USER_OF принимает ровно один аргумент");
-        Arguments productType = Arguments.valueOf(args.get(0));
-        boolean isActiveUser = transactionService.isActiveUserOfProduct(userId, productType);
-        return queryRule.isNegate() ? !isActiveUser : isActiveUser;
-    }
-
-    private boolean checkTransactionSumCompare(UUID userId, DynamicQueryRules queryRule, List<String> args) {
-        if (args.size() != 4) throw new IllegalArgumentException("TRANSACTION_SUM_COMPARE принимает 4 аргумента");
-        Arguments productType = Arguments.valueOf(args.get(0));
-        Arguments transactionType = Arguments.valueOf(args.get(1));
-        String operator = args.get(2);
-        int compareValue = Integer.parseInt(args.get(3));
-        int sum = transactionService.sumTransactions(userId, productType, transactionType);
-        boolean result = transactionService.compareSumWithValue(sum, operator, compareValue);
-        return queryRule.isNegate() ? !result : result;
-    }
-
-    private boolean checkTransactionSumCompareDepositWithdraw(UUID userId, DynamicQueryRules queryRule, List<String> args) {
-        if (args.size() != 2)
-            throw new IllegalArgumentException("TRANSACTION_SUM_COMPARE_DEPOSIT_WITHDRAW принимает 2 аргумента");
-        Arguments productType = Arguments.valueOf(args.get(0));
-        String operator = args.get(1);
-        int depositSum = transactionService.sumTransactions(userId, productType, Arguments.DEPOSIT);
-        int withdrawSum = transactionService.sumTransactions(userId, productType, Arguments.WITHDRAW);
-        boolean result = transactionService.compareSumWithSum(depositSum, withdrawSum, operator);
-        return queryRule.isNegate() ? !result : result;
+        dto.setRule(rulesDto);
+        return dto;
     }
 }
