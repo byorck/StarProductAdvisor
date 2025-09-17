@@ -1,6 +1,9 @@
 package com.starbank.StarProductAdvisor.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +20,7 @@ public class DynamicRecommendationRuleWithoutIdDTO {
 
     @JsonProperty("rule")
     private List<DynamicQueryRulesDTO> rule;
-
+    @NotBlank
     public String getProductName() {
         return productName;
     }
@@ -26,6 +29,7 @@ public class DynamicRecommendationRuleWithoutIdDTO {
         this.productName = productName;
     }
 
+    @NotNull
     public UUID getProductId() {
         return productId;
     }
@@ -34,6 +38,7 @@ public class DynamicRecommendationRuleWithoutIdDTO {
         this.productId = productId;
     }
 
+    @NotBlank
     public String getProductText() {
         return productText;
     }
@@ -42,6 +47,7 @@ public class DynamicRecommendationRuleWithoutIdDTO {
         this.productText = productText;
     }
 
+    @NotEmpty
     public List<DynamicQueryRulesDTO> getRule() {
         return rule;
     }

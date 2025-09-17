@@ -6,6 +6,7 @@ import com.starbank.StarProductAdvisor.entity.DynamicRecommendationRule;
 import com.starbank.StarProductAdvisor.service.DynamicRecommendationRuleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class DynamicRecommendationRuleController {
     @PostMapping
     @Operation(summary = "Создание банковского продукта", description = "В ответе возвращается информация о добавленном банковском " +
             "продукте, со следующими полями: id, product_name, product_id, product_text и rules.")
-    public DynamicRecommendationRuleWithIdDTO createDynamicRecommendationRule(@RequestBody DynamicRecommendationRuleWithoutIdDTO dto) {
+    public DynamicRecommendationRuleWithIdDTO createDynamicRecommendationRule(@Valid @RequestBody DynamicRecommendationRuleWithoutIdDTO dto) {
         DynamicRecommendationRule entity = dynamicRecommendationRuleService.createDynamicRecommendationRule(dto);
         return dynamicRecommendationRuleService.mapWithIdEntityToDto(entity);
     }

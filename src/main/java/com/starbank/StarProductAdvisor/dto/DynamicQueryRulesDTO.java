@@ -3,7 +3,6 @@ package com.starbank.StarProductAdvisor.dto;
 import com.starbank.StarProductAdvisor.entity.Query;
 
 import java.util.List;
-
 public class DynamicQueryRulesDTO {
 
     private Query query;
