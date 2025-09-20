@@ -11,9 +11,9 @@ import com.starbank.StarProductAdvisor.service.DynamicRecommendationRuleService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
@@ -24,10 +24,11 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DynamicRecommendationRuleController.class)
-class DynamicRecommendationRuleControllerTest {
+class DynamicRecommendationRuleServiceTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,7 +36,7 @@ class DynamicRecommendationRuleControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private DynamicRecommendationRuleService dynamicRecommendationRuleService;
 
     private final UUID testProductId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
@@ -45,19 +46,19 @@ class DynamicRecommendationRuleControllerTest {
     void createDynamicRecommendationRule_ValidData_Returns200Ok() throws Exception {
 
         String validJson = """
-        {
-            "product_name": "Test Product",
-            "product_id": "550e8400-e29b-41d4-a716-446655440000",
-            "product_text": "Product description",
-            "rule": [
                 {
-                    "query": "USER_OF",
-                    "arguments": ["DEBIT"],
-                    "negate": false
+                    "product_name": "Test Product",
+                    "product_id": "550e8400-e29b-41d4-a716-446655440000",
+                    "product_text": "Product description",
+                    "rule": [
+                        {
+                            "query": "USER_OF",
+                            "arguments": ["DEBIT"],
+                            "negate": false
+                        }
+                    ]
                 }
-            ]
-        }
-        """;
+                """;
 
         DynamicRecommendationRule entity = new DynamicRecommendationRule();
         entity.setId(1L);
@@ -206,13 +207,13 @@ class DynamicRecommendationRuleControllerTest {
     void createDynamicRecommendationRule_EmptyRuleArray_Returns400BadRequest() throws Exception {
 
         String invalidJson = """
-        {
-            "product_name": "Test Product",
-            "product_id": "550e8400-e29b-41d4-a716-446655440000",
-            "product_text": "Description",
-            "rule": []
-        }
-        """;
+                {
+                    "product_name": "Test Product",
+                    "product_id": "550e8400-e29b-41d4-a716-446655440000",
+                    "product_text": "Description",
+                    "rule": []
+                }
+                """;
 
 
         mockMvc.perform(post("/rule")
@@ -229,18 +230,18 @@ class DynamicRecommendationRuleControllerTest {
     void createDynamicRecommendationRule_MissingRequiredFields_Returns400BadRequest() throws Exception {
 
         String invalidJson = """
-        {
-            "product_id": "550e8400-e29b-41d4-a716-446655440000",
-            "product_text": "Description",
-            "rule": [
                 {
-                    "query": "USER_OF",
-                    "arguments": ["DEBIT"],
-                    "negate": false
+                    "product_id": "550e8400-e29b-41d4-a716-446655440000",
+                    "product_text": "Description",
+                    "rule": [
+                        {
+                            "query": "USER_OF",
+                            "arguments": ["DEBIT"],
+                            "negate": false
+                        }
+                    ]
                 }
-            ]
-        }
-        """;
+                """;
 
 
         mockMvc.perform(post("/rule")
@@ -257,19 +258,19 @@ class DynamicRecommendationRuleControllerTest {
     @Test
     void createDynamicRecommendationRule_InvalidQueryValue_Returns500InternalError() throws Exception {
         String invalidJson = """
-        {
-            "product_name": "Test Product",
-            "product_id": "550e8400-e29b-41d4-a716-446655440000",
-            "product_text": "Description",
-            "rule": [
                 {
-                    "query": "INVALID_QUERY",
-                    "arguments": ["DEBIT"],
-                    "negate": false
+                    "product_name": "Test Product",
+                    "product_id": "550e8400-e29b-41d4-a716-446655440000",
+                    "product_text": "Description",
+                    "rule": [
+                        {
+                            "query": "INVALID_QUERY",
+                            "arguments": ["DEBIT"],
+                            "negate": false
+                        }
+                    ]
                 }
-            ]
-        }
-        """;
+                """;
 
 
         mockMvc.perform(post("/rule")
