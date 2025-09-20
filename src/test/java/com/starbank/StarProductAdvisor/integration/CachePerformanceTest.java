@@ -6,14 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class CachePerformanceTest {
 
     @Autowired
@@ -62,7 +63,9 @@ class CachePerformanceTest {
             totalTime += System.nanoTime() - startTime;
 
             // Небольшая пауза между измерениями
-            try { Thread.sleep(10); } catch (InterruptedException e) { /* ignore */ }
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) { /* ignore */ }
         }
 
         return totalTime / iterations;
