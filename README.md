@@ -9,6 +9,7 @@
 - Spring Boot 3.5.5
 - База данных системы H2 (с режимом ReadOnly), хранящая данные о пользователях и их транзакциях (файл transaction.mv.db)
 - База данных системы PostgreSQL (с режимом Read/Write) для работы с динамическими правилами рекомендаций
+- База данных системы PostgreSQL (с режимом Read/Write) для тестирования и замеров производительности репозитория и кеша на реальных данных
 
 ## Шаги развертывания
 ### Установка зависимостей
@@ -19,6 +20,8 @@
 - библиотека Liquibase для управления миграциями баз данных
 - JDBC-драйвер для PostgreSQL
 - библиотеки для тестирования в Spring Boot (JUnit, Mockito, Spring Test и другие)
+- стартер Spring Boot для поддержки кеширования
+- библиотека Caffeine для высокопроизводительного in-memory кеша
   
 ### Настройка конфигураций (application.properties)
 ```
@@ -47,8 +50,15 @@ spring.jpa.hibernate.ddl-auto=validate
 spring.jpa.open-in-view=false
 spring.jpa.show-sql=true
 ```
+### Настройка конфигураций (application-test.properties)
+Подключение БД системы PostgreSQL для для тестирования и замеров производительности репозитория и кеша на реальных данных
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/Test
+spring.datasource.username=test
+spring.datasource.password=test
+spring.datasource.driver-class-name=org.postgresql.Driver
+```
 ## Запуск приложения
-
 ### Сборка
 ```
 mvn clean package
