@@ -16,7 +16,7 @@ import java.util.UUID;
  * Репозиторий для работы с базой данных рекомендаций через JdbcTemplate.
  * Содержит методы для проверки принадлежности пользователя к продуктам и подсчета сумм транзакций.
  */
-@Cacheable
+@Cacheable(cacheNames = "recommendationsCache")
 @Repository
 public class RecommendationsRepository {
     private final JdbcTemplate jdbcTemplate;
