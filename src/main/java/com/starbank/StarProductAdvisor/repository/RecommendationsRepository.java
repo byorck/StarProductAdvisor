@@ -1,6 +1,7 @@
 package com.starbank.StarProductAdvisor.repository;
 
 import com.starbank.StarProductAdvisor.exception.DatabaseException;
+import com.starbank.StarProductAdvisor.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
@@ -137,5 +138,14 @@ public class RecommendationsRepository {
             key = "#userId")
     public void clearUserCaches(UUID userId) {
         // Метод только для очистки кэша
+    }
+
+    public UUID getUserIdByUsername(String username) {
+        try {
+            String sql = "SELECT id FROM users WHERE username = ?";
+            return jdbcTemplate.queryForObject(sql, UUID.class, username);
+        } catch (Exception e) {
+            throw new UserNotFoundException(null);
+        }
     }
 }

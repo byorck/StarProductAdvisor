@@ -48,4 +48,9 @@ public class RecommendationService {
         }
         return recommendations;
     }
+
+    public List<RecommendationDTO> getRecommendationsForUserByUsername(String username) {
+        UUID userId = repository.getUserIdByUsername(username);
+        return getRecommendationsForUser(userId);
+    }
 }
