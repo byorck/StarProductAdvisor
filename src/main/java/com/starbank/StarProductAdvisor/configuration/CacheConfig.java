@@ -1,4 +1,4 @@
-package com.starbank.StarProductAdvisor.config;
+package com.starbank.StarProductAdvisor.configuration;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.cache.CacheManager;
