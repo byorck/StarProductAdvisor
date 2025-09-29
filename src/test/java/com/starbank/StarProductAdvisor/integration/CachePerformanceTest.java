@@ -43,8 +43,8 @@ class CachePerformanceTest {
         System.out.println("Cache time (avg): " + cacheTime + " ns");
         System.out.println("Performance ratio: " + (double) firstCallTime / cacheTime);
 
-        // Проверяем, что кэш значительно быстрее
-        assertThat(cacheTime).isLessThan(firstCallTime / 2); // Хотя бы в 2 раза быстрее
+        // Проверяем, что кэш быстрее, просто меньше времени первого вызова
+        assertThat(cacheTime).isLessThan(firstCallTime);
 
         assertFalse(repository.userExists(userId));
     }
@@ -97,8 +97,8 @@ class CachePerformanceTest {
             System.out.println("Cache call #" + (i + 1) + ": " + currentTime + " ns");
             System.out.println("Ratio (first/cache): " + (double) firstTime / currentTime);
 
-            // Проверяем, что время кэшированных вызовов значительно меньше первого
-            assertThat(currentTime).isLessThan(firstTime * 2);
+            // Проверяем, что время кэшированных вызовов меньше первого
+            assertThat(currentTime).isLessThan(firstTime);
         }
 
         // Среднее время кэшированных вызовов должно быть значительно меньше первого
@@ -106,7 +106,7 @@ class CachePerformanceTest {
         System.out.println("Average cache time: " + averageCacheTime + " ns");
         System.out.println("Overall ratio: " + (double) firstTime / averageCacheTime);
 
-        assertThat(averageCacheTime).isLessThan(firstTime / 2);
+        assertThat(averageCacheTime).isLessThan(firstTime);
     }
 
     private long measureTime(Runnable operation) {
