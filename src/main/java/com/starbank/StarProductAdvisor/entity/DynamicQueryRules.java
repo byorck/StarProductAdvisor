@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "queries")
@@ -23,16 +22,16 @@ public class DynamicQueryRules {
     private Query query;
 
     @Schema(description = "Аргументы запроса (тип продукта, тип транзакции, тип сравнения и число, с которым выполняется сравнение)")
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER) // EAGER здесь допустим для ElementCollection
     @CollectionTable(name = "query_arguments", joinColumns = @JoinColumn(name = "query_id", referencedColumnName = "id"))
     @Column(name = "argument")
     private List<String> arguments;
 
     @Schema(description = "Модификатор отрицания", example = "true/false")
     @Column(name = "negate")
-    boolean negate;
+    private boolean negate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // Всегда LAZY для связей!
     @JsonIgnore
     @JoinColumn(name = "recommendations_id")
     private DynamicRecommendationRule dynamicRecommendationRule;
@@ -46,6 +45,8 @@ public class DynamicQueryRules {
 
     public DynamicQueryRules() {
     }
+
+
 
     public Long getId() {
         return id;
@@ -87,15 +88,5 @@ public class DynamicQueryRules {
         this.dynamicRecommendationRule = dynamicRecommendationRule;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        DynamicQueryRules that = (DynamicQueryRules) o;
-        return negate == that.negate && Objects.equals(id, that.id) && query == that.query && Objects.equals(arguments, that.arguments);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, query, arguments, negate);
-    }
 }

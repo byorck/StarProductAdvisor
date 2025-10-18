@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,7 +30,11 @@ public class DynamicRecommendationRule {
     @Column(name = "product_text")
     private String productText;
 
-    @OneToMany(mappedBy = "dynamicRecommendationRule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    // ИЗМЕНЕНИЕ: FetchType.LAZY вместо EAGER
+    @OneToMany(mappedBy = "dynamicRecommendationRule",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY) // ВАЖНО: LAZY вместо EAGER
     private Set<DynamicQueryRules> queries = new HashSet<>();
 
     public DynamicRecommendationRule(Long id, UUID productId, String productName, String productText, Set<DynamicQueryRules> queries) {
@@ -47,8 +50,19 @@ public class DynamicRecommendationRule {
     }
 
     public DynamicRecommendationRule() {
-
     }
+
+    // Вспомогательные методы для управления связью
+    public void addQuery(DynamicQueryRules query) {
+        this.queries.add(query);
+        query.setDynamicRecommendationRule(this);
+    }
+
+    public void removeQuery(DynamicQueryRules query) {
+        this.queries.remove(query);
+        query.setDynamicRecommendationRule(null);
+    }
+
 
     public Long getId() {
         return id;
@@ -87,18 +101,14 @@ public class DynamicRecommendationRule {
     }
 
     public void setQueries(Set<DynamicQueryRules> queries) {
-        this.queries = queries;
+        this.queries.clear();
+        if (queries != null) {
+            this.queries.addAll(queries);
+            for (DynamicQueryRules query : queries) {
+                query.setDynamicRecommendationRule(this);
+            }
+        }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        DynamicRecommendationRule that = (DynamicRecommendationRule) o;
-        return Objects.equals(id, that.id) && Objects.equals(productName, that.productName) && Objects.equals(productId, that.productId) && Objects.equals(productText, that.productText) && Objects.equals(queries, that.queries);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, productName, productId, productText, queries);
-    }
 }
